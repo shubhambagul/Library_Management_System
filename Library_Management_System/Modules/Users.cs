@@ -12,5 +12,7 @@ namespace Library_Management_System.Modules
         public string? Role { get; set; }
         public DateTime MembershipDate { get; set; }=DateTime.Now;
 
+      //  public ICollection<Transactions> Transactions { get; set; }
+
     }
 }

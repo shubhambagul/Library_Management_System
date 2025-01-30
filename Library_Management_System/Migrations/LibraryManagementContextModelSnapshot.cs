@@ -57,6 +57,38 @@ namespace Library_Management_System.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("Library_Management_System.Modules.Transactions", b =>
+                {
+                    b.Property<int>("TransactionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionID"));
+
+                    b.Property<int>("BookID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BorrowDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("FineAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("TransactionID");
+
+                    b.HasIndex("BookID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("transactions");
+                });
+
             modelBuilder.Entity("Library_Management_System.Modules.Users", b =>
                 {
                     b.Property<int>("UserId")
@@ -83,6 +115,35 @@ namespace Library_Management_System.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("Library_Management_System.Modules.Transactions", b =>
+                {
+                    b.HasOne("Library_Management_System.Modules.Books", "Book")
+                        .WithMany("Transactions")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Library_Management_System.Modules.Users", "User")
+                        .WithMany("Transactions")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Library_Management_System.Modules.Books", b =>
+                {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("Library_Management_System.Modules.Users", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

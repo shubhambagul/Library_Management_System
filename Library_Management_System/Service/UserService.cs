@@ -1,6 +1,10 @@
 ﻿using Library_Management_System.Modules;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Library_Management_System.Repositories;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 namespace Library_Management_System.Service
 {
     public class UserService:IUserSevice
@@ -28,9 +32,9 @@ namespace Library_Management_System.Service
         }
         public Users userLogin(LoginDto loginDTO)
         {
-          //  var user =
+         
             return _context.users.FirstOrDefault(n => n.Email == loginDTO.Email && n.Password == loginDTO.Password);
-            
+           
         }
     }
 }

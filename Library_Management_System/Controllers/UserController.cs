@@ -2,6 +2,10 @@
 using Library_Management_System.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Library_Management_System.Controllers
 {
@@ -11,10 +15,12 @@ namespace Library_Management_System.Controllers
     {
         private readonly IUserSevice _userSevice;
         private readonly Users _user;
-        public UserController(IUserSevice userSevice, Users user)
+        private readonly IConfiguration _configuration;
+        public UserController(IUserSevice userSevice, Users user, IConfiguration configuration)
         {
             _userSevice = userSevice;
             _user = user;
+            _configuration = configuration;
         }
         [HttpPost]
         [Route("AddUser")]
@@ -27,18 +33,44 @@ namespace Library_Management_System.Controllers
             var isSuccess = _userSevice.createUser(userDTO);
             if (isSuccess)
             {
-                return Ok("Login Success");
+                return Ok("User Registered Success");
             }
             return BadRequest("Email Id Already Exist");
         }
         [HttpPost]
         [Route("Login")]
-        public ActionResult userLogin([FromBody] LoginDto loginDTO) { 
-        var checkUser = _userSevice.userLogin(loginDTO);
-            if (checkUser == null) { 
-            return BadRequest("Invilid user");
+        public ActionResult userLogin([FromBody] LoginDto loginDTO)
+        {
+            var userLogin = _userSevice.userLogin(loginDTO);
+
+            if (userLogin != null)
+            {
+                var claims = new[]
+                {
+            new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("UserId", userLogin.UserId.ToString()),
+            new Claim("Email", userLogin.Email),
+            new Claim(ClaimTypes.Role, userLogin.Role) // Use the user's actual role
+        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddMinutes(60),
+                    signingCredentials: signIn
+                );
+
+                string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+
+                return Ok(new { Token = tokenValue, User = userLogin });
             }
-            return Ok(checkUser);
+
+            return Unauthorized("Invalid credentials");
         }
     }
-}
+    }
