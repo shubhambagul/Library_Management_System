@@ -18,23 +18,35 @@ namespace Library_Management_System.Service
         }
         public bool createUser(UserDto userDTO)
         {
-            var checkEmailId = _context.users.FirstOrDefault(x => x.Email == userDTO.Email);
-            if (checkEmailId != null) {
-                return false;
+            try
+            {
+                var checkEmailId = _context.users.FirstOrDefault(x => x.Email == userDTO.Email);
+                if (checkEmailId != null)
+                {
+                    return false;
+                }
+                _user.Name = userDTO.Name;
+                _user.Email = userDTO.Email;
+                _user.Password = userDTO.Password;
+                _user.Role = userDTO.Role;
+                _context.users.Add(_user);
+                _context.SaveChanges();
+                return true;
             }
-            _user.Name = userDTO.Name;
-            _user.Email = userDTO.Email;
-            _user.Password = userDTO.Password;
-            _user.Role = userDTO.Role;
-            _context.users.Add(_user);
-            _context.SaveChanges();
-            return true;
+            catch (Exception ex) { 
+            throw new Exception(ex.Message);
+            }
         }
         public Users userLogin(LoginDto loginDTO)
         {
-         
-            return _context.users.FirstOrDefault(n => n.Email == loginDTO.Email && n.Password == loginDTO.Password);
-           
+            try
+            {
+                return _context.users.FirstOrDefault(n => n.Email == loginDTO.Email && n.Password == loginDTO.Password);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

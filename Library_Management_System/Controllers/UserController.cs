@@ -26,27 +26,35 @@ namespace Library_Management_System.Controllers
         [Route("AddUser")]
         public ActionResult createUsers([FromBody] UserDto userDTO)
         {
-            if (userDTO == null)
+            try
             {
-                return BadRequest("Invalid user data.");
+                if (userDTO == null)
+                {
+                    return BadRequest("Invalid user data.");
+                }
+                var isSuccess = _userSevice.createUser(userDTO);
+                if (isSuccess)
+                {
+                    return Ok("User Registered Success");
+                }
+                return BadRequest("Email Id Already Exist");
             }
-            var isSuccess = _userSevice.createUser(userDTO);
-            if (isSuccess)
-            {
-                return Ok("User Registered Success");
+            catch (Exception ex) {
+                return BadRequest(ex.Message);
             }
-            return BadRequest("Email Id Already Exist");
         }
         [HttpPost]
         [Route("Login")]
         public ActionResult userLogin([FromBody] LoginDto loginDTO)
         {
-            var userLogin = _userSevice.userLogin(loginDTO);
-
-            if (userLogin != null)
+            try
             {
-                var claims = new[]
+                var userLogin = _userSevice.userLogin(loginDTO);
+
+                if (userLogin != null)
                 {
+                    var claims = new[]
+                    {
             new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("UserId", userLogin.UserId.ToString()),
@@ -54,23 +62,27 @@ namespace Library_Management_System.Controllers
             new Claim(ClaimTypes.Role, userLogin.Role) // Use the user's actual role
         };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                var token = new JwtSecurityToken(
-                    _configuration["Jwt:Issuer"],
-                    _configuration["Jwt:Audience"],
-                    claims,
-                    expires: DateTime.UtcNow.AddMinutes(60),
-                    signingCredentials: signIn
-                );
+                    var token = new JwtSecurityToken(
+                        _configuration["Jwt:Issuer"],
+                        _configuration["Jwt:Audience"],
+                        claims,
+                        expires: DateTime.UtcNow.AddMinutes(60),
+                        signingCredentials: signIn
+                    );
 
-                string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+                    string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
 
-                return Ok(new { Token = tokenValue, User = userLogin });
+                    return Ok(new { Token = tokenValue, User = userLogin });
+                }
+
+                return Unauthorized("Invalid credentials");
             }
-
-            return Unauthorized("Invalid credentials");
+            catch (Exception ex) { 
+            return BadRequest(ex.Message);
+            }
         }
     }
     }

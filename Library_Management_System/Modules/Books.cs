@@ -13,7 +13,5 @@ namespace Library_Management_System.Modules
         public int PublicationYear { get; set; }
         public string? Status { get; set; }
 
-       // public ICollection<Transactions> Transactions { get; set; }
-
     }
 }

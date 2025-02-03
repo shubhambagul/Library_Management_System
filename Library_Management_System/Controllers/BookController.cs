@@ -24,18 +24,20 @@ namespace Library_Management_System.Controllers
         [HttpGet]
         [Route("GetAllBook")]
         [Authorize(Roles = "Admin")]
-        public ActionResult GetAllBooks()
+        public ActionResult GetAllBooks([FromQuery] string? Title, [FromQuery] string? Author, [FromQuery] string? Genre, [FromQuery] long? ISBN, [FromQuery] string? SortBy,
+    [FromQuery] string? Order)
         {
             try
             {
-                var getAllBooks = _context.GetAllBooks();
-                if (getAllBooks == null)
+                var getAllBooks = _context.GetAllBooks(Title, Author, Genre, ISBN, SortBy, Order);
+                if (!getAllBooks.Any())
                 {
                     return NotFound("Books are not available");
                 }
                 return Ok(getAllBooks);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
@@ -53,8 +55,9 @@ namespace Library_Management_System.Controllers
                 }
                 return Ok(getBook);
             }
-            catch (Exception ex) { 
-            return NotFound(ex.Message);
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
             }
         }
 
@@ -73,30 +76,45 @@ namespace Library_Management_System.Controllers
 
                 return BadRequest(ex.Message);
             }
-          
+
         }
         [HttpPut]
         [Route("UpdateBook")]
         [Authorize(Roles = "Admin")]
         public ActionResult updateBook(int id, BooksDto bookDTO)
         {
-            var updateResult = _context.updateBook(id, bookDTO);
-            if (!updateResult)
+            try
             {
-                return NotFound($"No book found with ID {id}.");
+                var updateResult = _context.updateBook(id, bookDTO);
+                if (!updateResult)
+                {
+                    return NotFound($"No book found with ID {id}.");
+                }
+                return Ok("Book updated successfully");
             }
-            return Ok("Book updated successfully");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpDelete]
         [Route("DeleteBook")]
         [Authorize(Roles = "Admin")]
-        public ActionResult DeleteBook(int id) { 
-        var deleteResult = _context.deleteBook(id);
-            if (!deleteResult)
+        public ActionResult DeleteBook(int id)
+        {
+            try
             {
-                return NotFound($"No book found with ID {id}.");
+                var deleteResult = _context.deleteBook(id);
+                if (!deleteResult)
+                {
+                    return NotFound($"No book found with ID {id}.");
+                }
+                return Ok("Book deleted successfully");
             }
-            return Ok("Book deleted successfully");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
