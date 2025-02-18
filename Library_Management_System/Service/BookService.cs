@@ -7,16 +7,16 @@ using System.Globalization;
 namespace Library_Management_System.Service
 {
 
-    public class BookService : IBookService
+    public class BookService(LibraryManagementContext _context, Books _book) : IBookService
     {
-        private readonly LibraryManagementContext _context;
-        private readonly Books _book;
+        //private readonly LibraryManagementContext _context;
+        //private readonly Books _book;
 
-        public BookService(LibraryManagementContext context, Books book)
-        {
-            _context = context;
-            _book = book;
-        }
+        //public BookService
+        //{
+        //    _context = context;
+        //    _book = book;
+        //}
         public IEnumerable<Books> GetAllBooks(string? Title = null, string? Author = null, string? Genre = null, long? ISBN = null, string? SortBy = null,
     string? Order = "asc")
         {

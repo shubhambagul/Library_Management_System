@@ -10,16 +10,16 @@ namespace Library_Management_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookController : ControllerBase
+    public class BookController(IBookService _context, Books _book) : ControllerBase
     {
-        private readonly IBookService _context;
-        private readonly Books _book;
+        //private readonly IBookService _context;
+        //private readonly Books _book;
 
-        public BookController(IBookService context, Books book)
-        {
-            _context = context;
-            _book = book;
-        }
+        //public BookController(IBookService context, Books book)
+        //{
+        //    _context = context;
+        //    _book = book;
+        //}
 
         [HttpGet]
         [Route("GetAllBook")]
@@ -43,16 +43,13 @@ namespace Library_Management_System.Controllers
         }
         [HttpGet]
         [Route("GetBook")]
-        [Authorize(Roles = "Admin,Member")]
+      //  [Authorize(Roles = "Admin,Member")]
         public ActionResult GetBook(int id)
         {
             try
             {
                 var getBook = _context.getBooks(id);
-                if (getBook == null)
-                {
-                    return NotFound($"No book found with ID {id}.");
-                }
+               
                 return Ok(getBook);
             }
             catch (Exception ex)
